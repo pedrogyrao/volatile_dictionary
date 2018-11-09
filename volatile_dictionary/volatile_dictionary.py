@@ -54,3 +54,9 @@ class VolatileDictionary(dict):
 
     def nonvolatile_keys(self):
         return [key for key in self if key not in self._evaporation_jobs]
+
+    def volatile_values(self):
+        return [self[key] for key in self.volatile_keys()]
+
+    def nonvolatile_values(self):
+        return [self[key] for key in self.nonvolatile_keys()]
