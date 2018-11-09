@@ -60,3 +60,9 @@ class VolatileDictionary(dict):
 
     def nonvolatile_values(self):
         return [self[key] for key in self.nonvolatile_keys()]
+
+    def volatile_items(self):
+        return [(key, self[key]) for key in self.volatile_keys()]
+
+    def nonvolatile_items(self):
+        return [(key, self[key]) for key in self.nonvolatile_keys()]
