@@ -39,3 +39,12 @@ class VolatileDictionary(dict):
     def _evaporate(self, key):
         super().__delitem__(key)
         del self._evaporation_jobs[key]
+
+    def get_set_life_time(self, key):
+        if key not in self._evaporation_jobs:
+            raise TypeError('This set is not volatile')
+
+        job_id = self._evaporation_jobs[key]
+        job = self._scheduler.get_job(job_id)
+        job_date = job.trigger.run_date
+        return (job_date - datetime.now(job_date.tzinfo)).total_seconds()
