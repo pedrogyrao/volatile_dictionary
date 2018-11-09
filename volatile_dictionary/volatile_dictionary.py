@@ -40,7 +40,7 @@ class VolatileDictionary(dict):
         super().__delitem__(key)
         del self._evaporation_jobs[key]
 
-    def get_set_life_time(self, key):
+    def get_set_lifetime(self, key):
         if key not in self._evaporation_jobs:
             raise TypeError('This set is not volatile')
 
@@ -66,3 +66,20 @@ class VolatileDictionary(dict):
 
     def nonvolatile_items(self):
         return [(key, self[key]) for key in self.nonvolatile_keys()]
+
+    def __str__(self):
+        volatile_keys = self.volatile_keys()
+        non_volatile_keys = self.nonvolatile_keys()
+
+        string = ''
+        if len(volatile_keys) > 0:
+            string += 'Volatile sets:\n'
+            for key in volatile_keys:
+                t = self.get_set_lifetime(key)
+                string += '\t{}: {} [{}s]\n'.format(key, self[key], t)
+            string += '\n'
+        if len(non_volatile_keys) > 0:
+            string += 'Nonvolatile sets:\n'
+            for key in non_volatile_keys:
+                string += '\t{}: {}\n'.format(key, self[key])
+        return string
