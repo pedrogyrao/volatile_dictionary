@@ -48,3 +48,9 @@ class VolatileDictionary(dict):
         job = self._scheduler.get_job(job_id)
         job_date = job.trigger.run_date
         return (job_date - datetime.now(job_date.tzinfo)).total_seconds()
+
+    def volatile_keys(self):
+        return [key for key in self if key in self._evaporation_jobs]
+
+    def nonvolatile_keys(self):
+        return [key for key in self if key not in self._evaporation_jobs]
