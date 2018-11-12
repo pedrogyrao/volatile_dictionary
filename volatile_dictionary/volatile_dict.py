@@ -81,18 +81,18 @@ class VolatileDictionary(dict):
         return [(key, self[key]) for key in self.nonvolatile_keys()]
 
     def __str__(self):
-        volatile_keys = self.volatile_keys()
-        non_volatile_keys = self.nonvolatile_keys()
+        volatile_sets = self.volatile_items()
+        nonvolatile_sets = self.nonvolatile_items()
 
         string = ''
-        if len(volatile_keys) > 0:
+        if len(volatile_sets) > 0:
             string += 'Volatile sets:\n'
-            for key in volatile_keys:
+            for key, value in volatile_sets:
                 t = self.get_set_lifetime(key)
-                string += '\t{}: {} [{}s]\n'.format(key, self[key], t)
+                string += '\t{}: {} [{}s]\n'.format(key, value, t)
             string += '\n'
-        if len(non_volatile_keys) > 0:
+        if len(nonvolatile_sets) > 0:
             string += 'Nonvolatile sets:\n'
-            for key in non_volatile_keys:
-                string += '\t{}: {}\n'.format(key, self[key])
+            for key, value in nonvolatile_sets:
+                string += '\t{}: {}\n'.format(key, value)
         return string
