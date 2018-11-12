@@ -21,6 +21,9 @@ class VolatileDictionary(dict):
 
         self._evaporation_jobs = {}
 
+    def is_set_volatile(self, key):
+        return key in self._evaporation_jobs
+
     def __setitem__(self, key, value, t=None):
         if is_key_time_tuple(key):
             key, t = key
@@ -40,17 +43,17 @@ class VolatileDictionary(dict):
             self._evaporate, 'date', run_date = date, args=(key,))
         self._evaporation_jobs[key] = job.id
 
-    def cancel_volatility(self, key):
-        if key not in self._evaporation_jobs:
-            raise NonvolatileTypeError(key)
-        self._scheduler.remove_job(self._evaporation_jobs[key])
-
     def _evaporate(self, key):
         super().__delitem__(key)
         del self._evaporation_jobs[key]
 
+    def cancel_volatility(self, key):
+        if not self.is_set_volatile(key):
+            raise NonvolatileTypeError(key)
+        self._scheduler.remove_job(self._evaporation_jobs[key])
+
     def get_set_lifetime(self, key):
-        if key not in self._evaporation_jobs:
+        if not self.is_set_volatile(key):
             raise NonvolatileTypeError(key)
 
         job_id = self._evaporation_jobs[key]
@@ -59,10 +62,10 @@ class VolatileDictionary(dict):
         return (job_date - datetime.now(job_date.tzinfo)).total_seconds()
 
     def volatile_keys(self):
-        return [key for key in self if key in self._evaporation_jobs]
+        return [key for key in self if self.is_set_volatile(key)]
 
     def nonvolatile_keys(self):
-        return [key for key in self if key not in self._evaporation_jobs]
+        return [key for key in self if not self.is_set_volatile(key)]
 
     def volatile_values(self):
         return [self[key] for key in self.volatile_keys()]
