@@ -51,6 +51,7 @@ class VolatileDictionary(dict):
         if not self.is_set_volatile(key):
             raise NonvolatileTypeError(key)
         self._scheduler.remove_job(self._evaporation_jobs[key])
+        del self._evaporation_jobs[key]
 
     def get_set_lifetime(self, key):
         if not self.is_set_volatile(key):
