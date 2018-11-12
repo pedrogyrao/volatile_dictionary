@@ -2,6 +2,13 @@ from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
+class NonvolatileTypeError(TypeError):
+    _ERROR_MESSAGE = 'The key "{}" does not represent a volatile set.'
+
+    def __init__(self, key):
+        super().__init__(self, self._ERROR_MESSAGE.format(key))
+
+
 def is_key_time_tuple(el):
     return isinstance(el, tuple) and (len(el) == 2) and isinstance(el[1], int)
 
@@ -34,6 +41,8 @@ class VolatileDictionary(dict):
         self._evaporation_jobs[key] = job.id
 
     def cancel_volatility(self, key):
+        if key not in self._evaporation_jobs:
+            raise NonvolatileTypeError(key)
         self._scheduler.remove_job(self._evaporation_jobs[key])
 
     def _evaporate(self, key):
@@ -42,7 +51,7 @@ class VolatileDictionary(dict):
 
     def get_set_lifetime(self, key):
         if key not in self._evaporation_jobs:
-            raise TypeError('This set is not volatile')
+            raise NonvolatileTypeError(key)
 
         job_id = self._evaporation_jobs[key]
         job = self._scheduler.get_job(job_id)
